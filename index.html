@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="icon" type="image/png"
+      href="https://upload.wikimedia.org/wikipedia/commons/6/6a/JavaScript-logo.png">
+    <title>minify js</title>
+    <style>
+      body, html{
+        margin: 0;
+        background: #000;
+        color: #fff;
+        font-family: monospace;
+        font-size: 16px;
+        min-height: 100vh;
+      }
+      #header{
+        padding: 10px;
+        background: linear-gradient(90deg, #40f, #000);
+      }
+      #input, #output{
+        padding: 5px;
+        height: 300px;
+        width: calc(100% - 40px);
+        margin: 20px;
+      }
+      #input{
+        border: 1px solid #0f46;
+        background: #0f42;
+      }
+      #output{
+        border: 1px solid #40f6;
+        background: #40f2;
+      }
+      textarea:focus{
+        outline: none;
+      }
+      textarea{
+        display: block;
+        height: calc(100% - 40px);
+        background: #000;
+        margin: 5px;
+        width: calc(100% - 15px);
+        display: block;
+        position: relative;
+        resize: vertical;
+      }
+      #inputText{
+        color: #af8;
+      }
+      #outputText{
+        color: #a8f;
+      }
+    </style>
+    <script>
+      const Minify = (code, outputElement, loadingElement) => {
+        let sendData = { code }
+        let ret = ''
+        fetch('nodeProxy.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(sendData)
+        }).then(res => res.json()).then(data => {
+
+
+
+          var copyButton = document.createElement('button')
+          copyButton.style.border = 'none'
+          copyButton.style.padding = '3px'
+          copyButton.style.cursor = 'pointer'
+          copyButton.fontSize = '20px'
+          copyButton.style.borderRadius = '10px'
+          copyButton.style.margin = '10px'
+          copyButton.style.minWidth = '100px'
+          copyButton.innerHTML = '📋 copy'
+          copyButton.title = "copy shape data to clipboard"
+          copyButton.onclick = () => {
+            var range = document.createRange()
+            range.selectNode(outputElement)
+            window.getSelection().removeAllRanges()
+            window.getSelection().addRange(range)
+            document.execCommand("copy")
+            window.getSelection().removeAllRanges()
+            copyButton.innerHTML = 'COPIED!'
+            setTimeout(() => {
+              copyButton.innerHTML = '📋 copy'
+            } , 1000)
+          }
+
+          outputElement.parentNode.insertBefore(copyButton, outputElement)
+          outputElement.value = data
+          
+          loadingElement.remove()
+        })
+      }
+    </script>
+  </head>
+  <body>
+    <div id="header">
+      minify js
+    </div>
+    <div id="input">
+      input<br>
+      <textarea
+        spellcheck=false
+        autofocus
+        id="inputText"
+        placeholder="paste javascript here"
+        oninput="processOutput()"
+      ></textarea>
+    </div>
+    <div id="output">
+      output
+      <textarea
+        spellcheck=false
+        id="outputText"
+        placeholder="output will appear here"
+      ></textarea>
+    </div>
+    <script>
+      inputText = document.querySelector('#inputText')
+      outputText = document.querySelector('#outputText')
+      inputTextContainer = document.querySelector('#input')
+      outputTextContainer = document.querySelector('#output')
+      
+      var mousedown = false
+      var draggingOutput = false
+      var draggingInput = false
+      
+      window.onmousedown = () => mousedown = true
+      window.onmouseup = () => mousedown = draggingOutput = draggingInput = false
+      
+      inputText.addEventListener('resize', () => {
+        console.log('resizing input')
+        inputTextContainer.style.height = (inputText.clientHeight + 40) + 'px'
+      })
+
+
+      window.onmousemove = e => {
+        var rect = outputText.getBoundingClientRect()
+        var lx = rect.left + rect.width
+        var ly = rect.top + rect.height
+        var px = e.pageX
+        var py = e.pageY
+        
+        if((draggingOutput && !draggingInput)|| Math.hypot(px-lx, py-ly) < 50){
+          outputText.style.cursor = 'ns-resize'
+          if(draggingOutput || mousedown){
+            draggingOutput = true
+            outputTextContainer.style.height = (outputText.clientHeight + 36 + e.movementY) + 'px'
+          }
+        }else{
+          outputText.style.cursor = 'default'
+        }
+        
+        rect = inputText.getBoundingClientRect()
+        lx = rect.left + rect.width
+        ly = rect.top + rect.height
+        if((draggingInput && !draggingOutput) || Math.hypot(px-lx, py-ly) < 50){
+          inputText.style.cursor = 'ns-resize'
+          if(draggingInput || mousedown){
+            draggingInput = true
+            inputTextContainer.style.height = (inputText.clientHeight + 36 + e.movementY) + 'px'
+          }
+        }else{
+          inputText.style.cursor = 'default'
+        }
+      }
+            
+      processOutput = () => {
+      
+        var loading = document.createElement('div')
+        loading.style.position = 'fixed'
+        loading.style.top = 0
+        loading.style.left = 0
+        loading.style.width = '100vw'
+        loading.style.height = '100vh'
+        loading.style.zIndex = 10000
+        loading.background = '#000e'
+        var graphic = new Image()
+        graphic.src = 'https://gifs.twilightparadox.com/e0dac613aa14e0146adb760e76dbd449.gif'
+        graphic.style.opacity = .2
+        graphic.style.width = '100%'
+        graphic.style.height = '100%'
+        loading.appendChild(graphic)
+        document.body.appendChild(loading)
+        
+        Minify(inputText.value, outputText, loading)
+      }
+
+    </script>
+  </body>
+</html>

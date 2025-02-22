@@ -1,0 +1,8 @@
+{
+  "name": "minifyjs",
+  "version": "1.0.0",
+  "author": "Scott McGann",
+  "dependencies": {
+    "terser": "^5.39.0"
+  }
+}
