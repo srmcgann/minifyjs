@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="utf-8">
     <link rel="icon" type="image/png"
       href="https://upload.wikimedia.org/wikipedia/commons/6/6a/JavaScript-logo.png">
     <title>minify js</title>
@@ -64,14 +65,15 @@
         }).then(res => res.json()).then(data => {
 
 
-
+          document.querySelectorAll('.copyButton').forEach(button=>button.remove())
           var copyButton = document.createElement('button')
+          copyButton.className = 'copyButton'
           copyButton.style.border = 'none'
           copyButton.style.padding = '3px'
           copyButton.style.cursor = 'pointer'
           copyButton.fontSize = '20px'
           copyButton.style.borderRadius = '10px'
-          copyButton.style.margin = '0px'
+          copyButton.style.margin = '10px'
           copyButton.style.minWidth = '100px'
           copyButton.innerHTML = '📋 copy'
           copyButton.title = "copy shape data to clipboard"
@@ -101,13 +103,12 @@
       minify js
     </div>
     <div id="input">
-      input<br>
+      input <button onclick="processInput()">minify!</button><br>
       <textarea
         spellcheck=false
         autofocus
         id="inputText"
         placeholder="paste javascript here"
-        oninput="processOutput()"
       ></textarea>
     </div>
     <div id="output">
@@ -168,7 +169,7 @@
         }
       }
             
-      processOutput = () => {
+      processInput = () => {
       
         var loading = document.createElement('div')
         loading.style.position = 'fixed'
@@ -177,12 +178,17 @@
         loading.style.width = '100vw'
         loading.style.height = '100vh'
         loading.style.zIndex = 10000
+        loading.style.textAlign = 'center'
         loading.background = '#000e'
         var graphic = new Image()
-        graphic.src = 'https://gifs.twilightparadox.com/e0dac613aa14e0146adb760e76dbd449.gif'
+        graphic.src = 'loading.gif'
         graphic.style.opacity = .2
-        graphic.style.width = '100%'
-        graphic.style.height = '100%'
+        graphic.style.display = 'inline block'
+        if(document.body.clientWidth > document.body.clientHeight){
+          graphic.style.height = '100%'
+        }else{
+          graphic.style.width = '100%'
+        }
         loading.appendChild(graphic)
         document.body.appendChild(loading)
         
@@ -192,3 +198,4 @@
     </script>
   </body>
 </html>
+
