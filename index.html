@@ -1,519 +1,194 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>boss tools</title>
-    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="icon" type="image/png"
+      href="https://upload.wikimedia.org/wikipedia/commons/6/6a/JavaScript-logo.png">
+    <title>minify js</title>
     <style>
-      html, body{
-        background-color: #000;
-        background-repeat: no-repeat;
-        background-image: url(https://boss.mindhackers.org/assets/uploads/2cjkNh.jpeg);
-        background-position: center center;
-        background-size: cover;
-        font-family: monospace;
-        font-size: 20px;
-        color: #2ff;
+      body, html{
         margin: 0;
+        background: #000;
+        color: #fff;
+        font-family: monospace;
+        font-size: 16px;
         min-height: 100vh;
       }
       #header{
-        text-align: center;
-        padding: 5px;
-        background: linear-gradient(-90deg, #0082, #0248);
-        border-bottom: 1px solid #8cf2;
-        text-shadow: #000 2px 2px 2px;
-        color: #fff;
-      }
-      .title{
-        left: 50%;
-        display: inline-block;
-        position: relative;
-        transform: translate(-50%);
-      }
-      .main{
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-evenly;
-      }
-      .card{
-        margin: 20px;
         padding: 10px;
-        box-shadow: #40f4 10px 10px 20px;
-        border: 1px solid #88f3;
-        display: inline-block;
-        width: 500px;
-        background: #0008;
-        min-height: 50px;
+        background: linear-gradient(90deg, #40f, #000);
       }
-      .desc{
-        font-size: .75em;
-        color: #fffc;
-        margin: 5px;
-        /*text-align: justify;*/
-        border: 1px solid #8cf2;
-        padding: 3px;
+      #input, #output{
+        padding: 5px;
+        height: 300px;
+        width: calc(100% - 40px);
+        margin: 20px;
       }
-      .textInput:focus{
+      #input{
+        border: 1px solid #0f46;
+        background: #0f42;
+      }
+      #output{
+        border: 1px solid #40f6;
+        background: #40f2;
+      }
+      textarea:focus{
         outline: none;
       }
-      .textInput{
-        color: #0f8;
-        border: none;
-        background: #333;
-        font-family: monospace;
-        width: calc(100% - 15px);
-        font-size: 16px;
-        border-bottom: 1px solid #8cf2;
-        margin: 5px;
-      }
-      .thumbContainer{
-        text-align: center;
-        color: #666;
-        display: inline-block;
-        margin: 5px;
-        margin-top:0;
-        float:right;
-      }
-      .thumbnail{
-        display: inline-bock;
-        background-repeat: no-repeat;
-        background-size: contain;
-        background-position: center center;
-        background-color: #000;
-        margin: 10px;
-        margin-bottom: 0;
-        margin-top: 0;
-        width: 240px;
-        height: 135px
-      }
-      button{
-        border: none;
-        background: #40fc;
-        box-shadow: #0F84 10px 10px 20px;
-        font-family: monospace;
-        font-size: 16px;
-        color: #fff;
-        text-shadow: #000 2px 2px 2px;
-        border-radius: 5px;
-        cursor: pointer;
-        min-width: 145px;
-      }
-      .playlistLink{
-        padding: 2px;
-        padding-left: 10px;
-        padding-right: 10px;
-        min-width: calc(100% - 32px);
-        border: 1px solid #800;
-        border-radius: 10px;
-        color: #f00;
+      textarea{
+        display: block;
+        height: calc(100% - 40px);
         background: #000;
-        text-align: left;
-        line-height: 1.2em;
-        display: inline-block;
+        margin: 5px;
+        width: calc(100% - 15px);
+        display: block;
         position: relative;
-        margin: 2px;
-        text-decoration: none;
-        font-weight: 900;
-        text-shadow: 0px 0px 4px #80f;
+        resize: vertical;
       }
-      .playlistLink:hover{
-        background: #201;
-        color: #f88;
+      #inputText{
+        color: #af8;
+      }
+      #outputText{
+        color: #a8f;
       }
     </style>
+    <script>
+      const Minify = (code, outputElement, loadingElement) => {
+        let sendData = { code }
+        let ret = ''
+        fetch('nodeProxy.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(sendData)
+        }).then(res => res.json()).then(data => {
+
+
+
+          var copyButton = document.createElement('button')
+          copyButton.style.border = 'none'
+          copyButton.style.padding = '3px'
+          copyButton.style.cursor = 'pointer'
+          copyButton.fontSize = '20px'
+          copyButton.style.borderRadius = '10px'
+          copyButton.style.margin = '10px'
+          copyButton.style.minWidth = '100px'
+          copyButton.innerHTML = '📋 copy'
+          copyButton.title = "copy shape data to clipboard"
+          copyButton.onclick = () => {
+            var range = document.createRange()
+            range.selectNode(outputElement)
+            window.getSelection().removeAllRanges()
+            window.getSelection().addRange(range)
+            document.execCommand("copy")
+            window.getSelection().removeAllRanges()
+            copyButton.innerHTML = 'COPIED!'
+            setTimeout(() => {
+              copyButton.innerHTML = '📋 copy'
+            } , 1000)
+          }
+
+          outputElement.parentNode.insertBefore(copyButton, outputElement)
+          outputElement.value = data
+          
+          loadingElement.remove()
+        })
+      }
+    </script>
   </head>
   <body>
-    <div id="header">boss tools</div>
-
-    <div class="main">
-      <div class="card">
-        <b class="title">Asset Manager
-          <button onclick="handleInput({keyCode: 13}, 'assets', '')">launch</button>
-        </b>
-        <div class="desc">
-          a tool for uploading, organizing, and sharing images and videos.
-          <div class="thumbContainer">
-            <div
-              onclick="handleInput({keyCode: 13}, 'assets', '')"
-              class="thumbnail"
-              title="example texture"
-              style = "background-image: url(assetsThumb.jpg)"
-            ></div>
-            <font style="font-size: .7em;">example texture</font>
-          </div><br>
-           You may create photo galleries, share comments and vote as well. Check out the featured items on the landing page.
-          <div style="clear: both;"></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <b class="title">JavaScript Minifier
-          <button onclick="handleInput({keyCode: 13}, 'assets', '')">launch</button>
-        </b>
-        <div class="desc">
-          a tool for minimizing javascript
-          <div class="thumbContainer">
-            <div
-              onclick="handleInput({keyCode: 13}, 'jsminify', '')"
-              class="thumbnail"
-              title="example texture"
-              style = "background-image: url(jsMinify.jpg)"
-            ></div>
-            <font style="font-size: .7em;">example texture</font>
-          </div><br>
-          <div style="clear: both;"></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <b class="title">cantelope links
-          <!--
-          <button
-            disabled onclick="handleInput({keyCode: 13}, 'wordleSolver', '')"
-            title="use links below"
-          >launch</button>
-          -->
-        </b>
-        <br>
-        <div class="desc">
-          <br>
-          <a href ="https://roadtrip.twilightparadox.com/" target="_blank" class="playlistLink">roadtrip (random)</a><br>
-          <a href ="https://orbital.twilightparadox.com/" target="_blank" class="playlistLink">orbital</a><br>
-          <a href ="https://winehouse.twilightparadox.com/" target="_blank" class="playlistLink">amy winehouse</a><br>
-          <a href ="https://eighties.twilightparadox.com/" target="_blank" class="playlistLink">eighties music</a><br>
-          <a href ="https://mixedup.twilightparadox.com/" target="_blank" class="playlistLink">mixed up - the cure</a><br>
-          <a href ="https://depechemode.twilightparadox.com/" target="_blank" class="playlistLink">depeche mode</a><br>
-          <a href ="https://flowerface.twilightparadox.com/" target="_blank" class="playlistLink">flower face</a><br>
-          <a href ="https://whr.twilightparadox.com/" target="_blank" class="playlistLink">whitehot robot songs</a><br>
-          <a href ="https://vids.twilightparadox.com/" target="_blank" class="playlistLink">whitehot robot music videos</a><br>
-          <a href ="https://roadtrip.twilightparadox.com/aion/" target="_blank" class="playlistLink">aion - dead can dance</a><br>
-          <a href ="https://gifs.twilightparadox.com/" target="_blank" class="playlistLink">gifs</a><br>
-          <a href ="https://drawings.twilightparadox.com/" target="_blank" class="playlistLink">drawings</a><br>
-          <a href ="https://srmcgann.github.io/photography/" target="_blank" class="playlistLink">photography</a><br>
-          <br>
-          <center>No login is required</center><br>
-          <div style="clear: both;"></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <b class="title">ABOMINATOR
-          <button onclick="handleInput({keyCode: 13}, 'abominator', '')">launch</button>
-        </b>
-        <br>
-        <input type="text" class="textInput" placeholder="or launch with URL... type or paste, then hit enter" autofocus
-          onkeydown="handleInput(event, 'abominator', this)"
-        >
-        <div class="desc">
-          a tool for making an image or video ABOMINABLE, with<br>
-          <div class="thumbContainer">
-            <video
-              onclick="handleInput({keyCode: 13}, 'abominator', '')"
-              src="abominator.mp4"
-              muted=true
-              autoplay=true
-              loop=true
-              class="thumbnail"
-              width="240px"
-              title="example texture"
-            ></video><br>
-            <font style="font-size: .7em;">example texture</font>
-          </div>
-          audio, auto-detected. This tool forces user interaction if the resource is a video, required by modern browsers for playing audio.<br><br>
-          <br><br>
-          &nbsp; URL cheatsheet<br>
-             &nbsp;               e.g. <b>... /?url=res.jpg&flyers=3&random&speed=2 ...<br><br></b>
-             <font style="color: #ff0;">
-             &nbsp; flyers        - number of ABOMINATORS [0 - 15]<br>
-             &nbsp; flyersize     - size of ABOMINATORS [0 - inf]<br>
-             &nbsp; speed         - animation master throttle [0 - inf]<br>
-             &nbsp; genScale      - default level of distortion [0 - 1] <br>
-             &nbsp; random        - random ABOMINATOR motion paths<br>
-             &nbsp; gamma         - adjust brightness [0 - inf] <br>
-             &nbsp; url           - link to custom resource [image or video]<br>
-             &nbsp; playbackspeed - if video, speed [1 = normal, 0 - 10] <br>
-             &nbsp; loop          - if video, loop [true (default) or false]<br>
-             &nbsp; autoplay      - if video, play muted, no button prompt<br>
-           </font>
-        </div>
-      </div>
-
-      <div class="card">
-        <b class="title">HDRI
-          <button onclick="handleInput({keyCode: 13}, 'HDRI', '')">launch</button>
-        </b>
-        <br>
-        <input type="text" class="textInput" placeholder="or launch with URL... type or paste, then hit enter" autofocus
-          onkeydown="handleInput(event, 'HDRI', this)"
-        >
-        <div class="desc">
-          a tool for viewing HDRI 360 panorama textures, images or videos without
-          <div class="thumbContainer">
-            <div
-              onclick="handleInput({keyCode: 13}, 'HDRI', '')"
-              class="thumbnail"
-              title="example texture"
-              style = "background-image: url(https://srmcgann.github.io/skyboxes2/HDRI/1.jpg)"
-            ></div>
-            <font style="font-size: .7em;">example texture</font>
-          </div>
-           audio (!). if your texture is a video and you want it to be
-          heard, use HDRIv (below) which forces user interaction, required by modern browsers for playing audio.
-          <div style="clear: both;"></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <b class="title">HDRIv
-          <button onclick="handleInput({keyCode: 13}, 'HDRIv', '')">launch</button>
-        </b>
-        <br>
-        <input type="text" class="textInput" placeholder="or launch with URL... type or paste, then hit enter" autofocus
-          onkeydown="handleInput(event, 'HDRIv', this)"
-        >
-        <div class="desc">
-          a tool for viewing HDRI 360 panorama textures, images or videos WITH
-          <div class="thumbContainer">
-            <video
-              src="https://srmcgann.github.io/skyboxes2/videos/pulse_darker.mp4"
-              onclick="handleInput({keyCode: 13}, 'HDRIv', '')"
-              muted=true
-              autoplay=true
-              loop=true
-              class="thumbnail"
-              width="240px"
-              title="example texture"
-            ></video><br>
-            <font style="font-size: .7em;">example texture</font>
-          </div>
-           audio, potentially. This tool forces user interaction, required by modern browsers for playing audio.
-          <div style="clear: both;"></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <b class="title">Image To HDRI
-          <button onclick="handleInput({keyCode: 13}, 'imageToHDRI', '')">launch</button>
-        </b>
-        <br>
-        <input type="text" class="textInput" placeholder="or launch with URL... type or paste, then hit enter" autofocus
-          onkeydown="handleInput(event, 'imageToHDRI', this)"
-        >
-        <div class="desc">
-          a tool for making an HDRI 360 panorama<br>
-          <div class="thumbContainer">
-            <div
-              onclick="handleInput({keyCode: 13}, 'imageToHDRI', '')"
-              class="thumbnail"
-              title="example texture"
-              style = "background-image: url(https://srmcgann.github.io/photography/2cf33bf95b93f02dbd794946d9c8af9c.jpg)"
-            ></div>
-            <font style="font-size: .7em;">example texture</font>
-          </div>
-            from an image sourcethis tool doesn't accept videos at this time
-          <div style="clear: both;"></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <b class="title">SHORTY
-          <button onclick="handleInput({keyCode: 13}, 'shorty', '')">launch</button>
-        </b>
-        <br>
-        <div class="desc">
-          shorten URLS
-          <div class="thumbContainer">
-            <div
-              onclick="handleInput({keyCode: 13}, 'shorty', '')"
-              class="thumbnail"
-              title="example texture"
-              style = "background-image: url(shortyThumb.jpg)"
-            ></div>
-          </div>
-          <div style="clear: both;"></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <b class="title">CODE PLAYGROUND
-          <button onclick="handleInput({keyCode: 13}, 'a', '')">launch</button>
-        </b>
-        <br>
-        <div class="desc">
-          A code playground, similar to jsfiddle or codepen.io<br><br>
-          <div class="thumbContainer">
-            <div
-              onclick="handleInput({keyCode: 13}, 'a', '')"
-              class="thumbnail"
-              title="example texture"
-              style = "background-image: url(codePlaygroundThumb.jpg)"
-            ></div>
-          </div>
-          logins for this page also log you in to the other connected tools: Audio Cloud, Words, and Games (below)
-          <div style="clear: both;"></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <b class="title">AUDIO CLOUD
-          <button onclick="handleInput({keyCode: 13}, 'e', '')">launch</button>
-        </b>
-        <br>
-        <div class="desc">
-          A repository for audio specifically. Common formats are supported<br><br>
-          <div class="thumbContainer">
-            <div
-              onclick="handleInput({keyCode: 13}, 'e', '')"
-              class="thumbnail"
-              title="example texture"
-              style = "background-image: url(audiocloudThumb.jpg)"
-            ></div>
-          </div>
-          logins for this page also log you in to the other connected tools: Code Playground, Words, and Games
-          <div style="clear: both;"></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <b class="title">GAMES
-          <button onclick="handleInput({keyCode: 13}, 'b', '')">launch</button>
-        </b>
-        <br>
-        <div class="desc">
-          A browswer game showcase<br><br>
-          <div class="thumbContainer">
-            <div
-              onclick="handleInput({keyCode: 13}, 'b', '')"
-              class="thumbnail"
-              title="example texture"
-              style = "background-image: url(gamesThumb.jpg)"
-            ></div>
-          </div>
-          logins for this page also log you in to the other connected tools: Code Playground, Words, and Audio Cloud
-          <div style="clear: both;"></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <b class="title">WORDS
-          <button onclick="handleInput({keyCode: 13}, 'c', '')">launch</button>
-        </b>
-        <br>
-        <div class="desc">
-          A blog / notepad tool<br><br>
-          <div class="thumbContainer">
-            <div
-              onclick="handleInput({keyCode: 13}, 'c', '')"
-              class="thumbnail"
-              title="example texture"
-              style = "background-image: url(wordsThumb.jpg)"
-            ></div>
-          </div>
-          logins for this page also log you in to the other connected tools: Code Playground, Games, and Audio Cloud
-          <div style="clear: both;"></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <b class="title">WORDLE SOLVER
-          <button onclick="handleInput({keyCode: 13}, 'wordleSolver', '')">launch</button>
-        </b>
-        <br>
-        <div class="desc">
-          A tool for solving stubborn wordle puzzles<br><br>
-          <div class="thumbContainer">
-            <div
-              onclick="handleInput({keyCode: 13}, 'wordleSolver', '')"
-              class="thumbnail"
-              title="example texture"
-              style = "background-image: url(wordleSolverThumb.jpg)"
-            ></div>
-          </div>
-          No login is required
-          <div style="clear: both;"></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <b class="title">EMPHASIS (v1)
-          <button onclick="handleInput({keyCode: 13}, 'emphasis1', '')">launch</button>
-        </b>
-        <br>
-        <input type="text" class="textInput" placeholder="text to emphasize... use %20 for line breaks" autofocus
-          onkeydown="handleInput(event, 'emphasis1', this)"
-        >
-        <div class="desc">
-          a tool for emphasizing a short amount of text.
-          <div class="thumbContainer">
-            <div
-              onclick="handleInput({keyCode: 13}, 'emphasis1', '')"
-              class="thumbnail"
-              title="example emphasis"
-              style = "background-image: url(https://i.imgur.com/qltXnSs.png)"
-            ></div>
-            <font style="font-size: .7em;">example</font>
-          </div>
-          use %20 for line-breaks. <br><br> copy the resulting URL to share it...
-          <div style="clear: both;"></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <b class="title">EMPHASIS (v2)
-          <button onclick="handleInput({keyCode: 13}, 'emphasis2', '')">launch</button>
-        </b>
-        <br>
-        <input type="text" class="textInput" placeholder="text to emphasize... use \n for line breaks" autofocus
-          onkeydown="handleInput(event, 'emphasis2', this)"
-        >
-        <div class="desc">
-          a tool for emphasizing a short amount of text.
-          <div class="thumbContainer">
-            <div
-              onclick="handleInput({keyCode: 13}, 'emphasis2', '')"
-              class="thumbnail"
-              title="example emphasis"
-              style = "background-image: url(https://i.imgur.com/JZjJ7Lx.jpeg)"
-            ></div>
-            <font style="font-size: .7em;">example</font>
-          </div>
-          use \n for line-breaks. <br><br> copy the resulting URL to share it...          
-          <div style="clear: both;"></div>
-        </div>
-      </div>
+    <div id="header">
+      minify js
     </div>
-
+    <div id="input">
+      input<br>
+      <textarea
+        spellcheck=false
+        autofocus
+        id="inputText"
+        placeholder="paste javascript here"
+        oninput="processOutput()"
+      ></textarea>
+    </div>
+    <div id="output">
+      output
+      <textarea
+        spellcheck=false
+        id="outputText"
+        placeholder="output will appear here"
+      ></textarea>
+    </div>
     <script>
-      handleInput = (e, tool, t) => {
-        setTimeout(()=>{
-          if(e.keyCode == 13){
-            let el
-            switch(tool){
-              case 'emphasis1':
-                el    = document.createElement('a')
-                el.href   = `${'https://emphasis.bizuit.com/' + (t ? '?c=' + t.value : '')}`
-                el.target = '_blank'
-                el.click()
-                t.value   = ''
-              break
-              case 'emphasis2':
-                el    = document.createElement('a')
-                el.href   = `${'https://srmcgann.github.io/emphasis2/' + (t ? '?c=' + t.value : '')}`
-                el.target = '_blank'
-                el.click()
-                t.value   = ''
-              break
-              default:
-                el    = document.createElement('a')
-                el.href   = `${location.origin}/${tool}${t ? '/?url=' + t.value : ''}`
-                el.target = '_blank'
-                el.click()
-                t.value   = ''
-              break
-            }
+      inputText = document.querySelector('#inputText')
+      outputText = document.querySelector('#outputText')
+      inputTextContainer = document.querySelector('#input')
+      outputTextContainer = document.querySelector('#output')
+      
+      var mousedown = false
+      var draggingOutput = false
+      var draggingInput = false
+      
+      window.onmousedown = () => mousedown = true
+      window.onmouseup = () => mousedown = draggingOutput = draggingInput = false
+      
+      inputText.addEventListener('resize', () => {
+        console.log('resizing input')
+        inputTextContainer.style.height = (inputText.clientHeight + 40) + 'px'
+      })
+
+
+      window.onmousemove = e => {
+        var rect = outputText.getBoundingClientRect()
+        var lx = rect.left + rect.width
+        var ly = rect.top + rect.height
+        var px = e.pageX
+        var py = e.pageY
+        
+        if((draggingOutput && !draggingInput)|| Math.hypot(px-lx, py-ly) < 50){
+          outputText.style.cursor = 'ns-resize'
+          if(draggingOutput || mousedown){
+            draggingOutput = true
+            outputTextContainer.style.height = (outputText.clientHeight + 36 + e.movementY) + 'px'
           }
-        },0)
+        }else{
+          outputText.style.cursor = 'default'
+        }
+        
+        rect = inputText.getBoundingClientRect()
+        lx = rect.left + rect.width
+        ly = rect.top + rect.height
+        if((draggingInput && !draggingOutput) || Math.hypot(px-lx, py-ly) < 50){
+          inputText.style.cursor = 'ns-resize'
+          if(draggingInput || mousedown){
+            draggingInput = true
+            inputTextContainer.style.height = (inputText.clientHeight + 36 + e.movementY) + 'px'
+          }
+        }else{
+          inputText.style.cursor = 'default'
+        }
       }
+            
+      processOutput = () => {
+      
+        var loading = document.createElement('div')
+        loading.style.position = 'fixed'
+        loading.style.top = 0
+        loading.style.left = 0
+        loading.style.width = '100vw'
+        loading.style.height = '100vh'
+        loading.style.zIndex = 10000
+        loading.background = '#000e'
+        var graphic = new Image()
+        graphic.src = 'https://gifs.twilightparadox.com/e0dac613aa14e0146adb760e76dbd449.gif'
+        graphic.style.opacity = .2
+        graphic.style.width = '100%'
+        graphic.style.height = '100%'
+        loading.appendChild(graphic)
+        document.body.appendChild(loading)
+        
+        Minify(inputText.value, outputText, loading)
+      }
+
     </script>
   </body>
 </html>
