@@ -51,6 +51,19 @@
       #outputText{
         color: #a8f;
       }
+      .copyButton, .minifyButton{
+        border-radius: 5px;
+        border: none;
+        background: #262;
+        color: #cfc;
+        text-shadow: 2px 2px 2px #000;
+        min-width: 100px;
+        margin: 1px;
+        padding: 2px;
+        font-weight: 900;
+        font-family: monospace;
+        cursor: pointer;
+      }
     </style>
     <script>
       const Minify = (code, outputElement, loadingElement) => {
@@ -68,15 +81,8 @@
           document.querySelectorAll('.copyButton').forEach(button=>button.remove())
           var copyButton = document.createElement('button')
           copyButton.className = 'copyButton'
-          copyButton.style.border = 'none'
-          copyButton.style.padding = '3px'
-          copyButton.style.cursor = 'pointer'
-          copyButton.fontSize = '20px'
-          copyButton.style.borderRadius = '10px'
-          copyButton.style.margin = '0px'
-          copyButton.style.minWidth = '100px'
           copyButton.innerHTML = '📋 copy'
-          copyButton.title = "copy shape data to clipboard"
+          copyButton.title = "copy minified text to clipboard"
           copyButton.onclick = () => {
             var range = document.createRange()
             range.selectNode(outputElement)
@@ -103,7 +109,7 @@
       minify js
     </div>
     <div id="input">
-      input <button onclick="processInput()">minify!</button><br>
+      input <button class="minifyButton" onclick="processInput()">minify!</button><br>
       <textarea
         spellcheck=false
         autofocus
@@ -150,6 +156,7 @@
           if(draggingOutput || mousedown){
             draggingOutput = true
             outputTextContainer.style.height = (outputText.clientHeight + 36 + e.movementY) + 'px'
+            outputText.style.height = (outputText.clientHeight + e.movementY - 4) + 'px'
           }
         }else{
           outputText.style.cursor = 'default'
@@ -163,6 +170,7 @@
           if(draggingInput || mousedown){
             draggingInput = true
             inputTextContainer.style.height = (inputText.clientHeight + 36 + e.movementY) + 'px'
+            inputText.style.height = (inputText.clientHeight + e.movementY - 4) + 'px'
           }
         }else{
           inputText.style.cursor = 'default'
